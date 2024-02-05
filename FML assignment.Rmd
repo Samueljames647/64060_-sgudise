@@ -1,0 +1,55 @@
+---
+title: "Assignment 1"
+author: "Samuel_James_Gudise"
+date: "2024-02-04"
+output: html_document
+---
+# Crab Price Dataset
+
+## This dataset includes price data of crabs, with a particular emphasis on the correlation between the weight and price of the crab.
+
+### Dataset taken from Kagle_https://www.kaggle.com/code/inversion/make-synthetic-crab-age-data
+```{r}
+# Importing the Data csv To r
+crab_data<-read.csv("./crab.csv") 
+head(crab_data)
+```
+
+```{r}
+# Descriptive statistics to analyze
+summary(crab_data)
+```
+
+```{r}
+# Transforming the data set values of a column price from integer to character
+crab_data$Length<-as.character(crab_data$Length)
+```
+
+```{r}
+#  Descriptivive Statistics to analyze - quantitative data(price)
+summary(crab_data)[, 8]
+```
+
+```{r}
+#Descriptivive Statistics to analyze - quanlitative data(age)
+summary(crab_data)[, 7]
+```
+
+```{r} 
+# Scater plot of the data for price and weight.
+plot(crab_data$price,crab_data$Weight)
+```
+
+`
+```{r}
+# plotting the line graph showcasing the weight and price corelation
+library(ggplot2)
+
+ggplot(crab_data) +
+ aes(x = price, y = Weight) +
+ geom_line(colour = "#112446") +
+ theme_minimal() +
+ xlim(5, 
+ 10)
+")"
+```
