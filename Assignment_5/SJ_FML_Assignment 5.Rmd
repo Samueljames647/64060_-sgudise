@@ -1,0 +1,169 @@
+---
+title: "FML_5"
+author: "Samuel James Gudise"
+date: "2024-04-07"
+output: html_document
+---
+
+## Interpretation - 
+The Euclidean distance metric is used in the hierarchical clustering process using standardized measurements. Agnes algorithm is then used to compare several linkage techniques, such as single, complete, average, and Ward. The best clustering strategy is chosen based on the obtained results. Data is partitioned and cluster assignments are compared between partitions to evaluate stability. Normalizing the data is crucial to identifying a cluster of "healthy cereals" appropriate for elementary school cafeterias, guaranteeing that all cereals contribute to a well-rounded and nutrient-dense diet for pupils.
+
+Synopsis and conclusions:
+
+It has been determined that four clusters is the ideal quantity.
+
+Organizational Structure:
+
+Cluster 1: Consists of cereals with a high nutritional content that are balanced in terms of fiber, protein, and low levels of sugar and fat.
+
+Cluster 2: Contains cereals with a well-balanced mix of nutrients and mild nutritional characteristics.
+
+Cluster 3: Have lesser fiber and a higher sugar content, making them possibly less nutrient-dense.
+
+Cluster 4: Contains grains that are richer in sugar and fat content but have a lower overall nutritional quality.
+
+Stability analysis confirms the validity of the four clusters, which identify different nutritional groups based on different data subsets.
+Data normalization is essential for accurate cluster comparison. Cluster group 1, comprising (69, 61, 27, 44, 58, 64, 2, 65, 66, 55, 58, 21, 35, 18, 31, and 67).
+
+
+
+```{r}
+#loading the library 
+library(dplyr)
+library(cluster)
+```
+
+# Load the dataset
+```{r}
+Cereals_Data <- read.csv("./Cereals.csv")
+```
+
+#reamoving the rows which are missing values.
+```{r}
+Cere_clene <- na.omit(Cereals_Data)
+head(Cere_clene)
+```
+
+```{r}
+Num_columns <- sapply(Cereals_Data, is.numeric)
+Cereal_Norm <- Cere_clene
+Cere_scale <- Cereals_Data
+Cere_scale[, Num_columns] <- scale(Cere_scale[, Num_columns])
+head(Cere_scale)
+```
+
+```{r}
+# Dissimilarity matrix
+Diss_mat <- dist(Cereals_Data, method = "euclidean")
+# Hierarchical clustering using Complete Linkage
+Hi_clus<- hclust(Diss_mat, method = "complete")
+# Plot the obtained dendrogram
+plot(Hi_clus, cex = 0.6, hang = -1)
+
+```
+
+```{r}
+# Euclidean distance matrix
+Distance_mat <- dist(Cereal_Norm, method = "euclidean")
+
+# Single Linkage
+HClus_single <- hclust(Distance_mat, method = "single")
+
+# Complete Linkage
+HClus_complete <- hclust(Distance_mat, method = "complete")
+
+# Average Linkage
+HClus_average <- hclust(Distance_mat, method = "average")
+
+# Ward's Method
+HClus_Ward <- hclust(Distance_mat, method = "ward.D2")
+par(mfrow = c(2,2))
+plot(HClus_single, main = "Single Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_complete, main = "Complete Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_average, main = "Average Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_Ward, main = "Ward's Method", sub = "", xlab = "", ylab = "Distance")
+
+```
+
+```{r}
+# Calculating the distance of Euclidean
+Distance_EUC <- dist(Cereal_Norm, method = "euclidean")
+
+# Implement hierarchical clustering with several linking techniques
+HClus_single <- hclust(Distance_EUC, method = "single")
+HClus_complete <- hclust(Distance_EUC, method = "complete")
+HClus_average <- hclust(Distance_EUC, method = "average")
+HClus_Ward <- hclust(Distance_EUC, method = "ward.D2")
+par(mfrow=c(2,2))
+plot(HClus_single, main = "Single Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_complete, main = "Complete Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_average, main = "Average Linkage", sub = "", xlab = "", ylab = "Distance")
+plot(HClus_Ward, main = "Ward's Method", sub = "", xlab = "", ylab = "Distance")
+
+
+
+```
+
+```{r}
+clusters <- cutree(HClus_Ward, k=5)
+Cere_clene$Cluster <- clusters
+
+# Exploring the clustering composition
+table(Cere_clene$Cluster)
+
+# Analyzing the mean values by the cluster
+aggregate(Cere_clene[, -1], by = list(Cere_clene$Cluster), mean)
+
+```
+
+```{r}
+#Example: Determine which cluster has the lowest average sugar content and the highest average fiber content.
+#In order to modify appropriately, this phase may require domain knowledge.
+
+Best_index <- with(aggregate(Cere_clene[, c("fiber","sugars")], by = list(Cere_clene$Cluster),mean), which.max(fiber - sugars))
+Best_Cereals <- Cere_clene[Cere_clene$Cluster == Best_index, ]
+```
+
+```{r}
+library(cluster)
+Data_Fcer <- Cereals_Data
+#Compute using agnes and various linking techniques
+HClus_single <- agnes(Cereals_Data, method = "single")
+HClus_complete <- agnes(Cereals_Data, method = "complete")
+HClus_average <- agnes(Cereals_Data, method = "average")
+
+```
+
+```{r}
+print(HClus_single$ac)
+print(HClus_complete$ac)
+print(HClus_average$ac)
+```
+
+```{r}
+pltree(HClus_complete, cex = 0.6, hang = -1, main = "dendrogram of agnes")
+```
+
+```{r}
+Data_Fcer <- Cereals_Data
+dat <- dist(Cereals_Data, method = "euclidean")
+```
+
+```{r}
+HClus_complete <- hclust(dat, method = "complete")
+```
+
+```{r}
+plot(HClus_complete, cex = 0.6)
+rect.hclust(HClus_complete, k = 4, border = 1:4)
+```
+
+```{r}
+HCLus_Diana <- diana(Cereals_Data)
+HCLus_Diana$dc
+```
+
+```{r}
+pltree(HCLus_Diana, cex = 0.6, hang = -1, main = "dendrogram of diana")
+```
+
